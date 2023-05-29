@@ -1,0 +1,204 @@
+﻿<!--<Window x:Class="LeApproximation.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LeApproximation"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+
+    </Grid>
+</Window>-->
+
+<Window x:Class="LeApproximation.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:controls="clr-namespace:WpfMath.Controls;assembly=WpfMath"
+        xmlns:oxyc="http://oxyplot.org/wpf/contrib"
+        xmlns:local="clr-namespace:LeApproximation"
+        mc:Ignorable="d"
+        Title="LeApproximation 1.0" Height="742" Width="1511">
+    <Window.DataContext>
+        <local:ViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <Style x:Key="ConsoleTextBox" TargetType="{x:Type TextBox}">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer RenderTransformOrigin="0.5,0.5" VerticalScrollBarVisibility="Auto">
+                            <ScrollViewer.RenderTransform>
+                                <ScaleTransform ScaleY="-1"/>
+                            </ScrollViewer.RenderTransform>
+                            <TextBox Text="{TemplateBinding Text}" RenderTransformOrigin="0.5,0.5" Background="Black" Foreground="LawnGreen" FontFamily="Consolas" TextWrapping="Wrap">
+                                <TextBox.RenderTransform>
+                                    <ScaleTransform ScaleY="-1"/>
+                                </TextBox.RenderTransform>
+                            </TextBox>
+                        </ScrollViewer>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="8*"/>
+        </Grid.ColumnDefinitions>
+
+
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+            <Label>Select function formula:</Label>
+            <ComboBox SelectedIndex="{Binding FunctionFormulaIndex, Mode=TwoWay}">
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=3x-5"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=x^3+x^2-2x-1"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=x^4+x^2-2x+1"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=x^6-x^3-2x-1"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=|x|"/>
+                </ComboBoxItem>
+
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=\cos x"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=\cos^2(2x^2)-|\sin x^2|"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=e^{-x^2}"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=\ln{\frac{1}{|x|}}"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=\ln{\frac{1}{|x+0.5|}}-\ln{\frac{1}{|x-0.5|}}"/>
+                </ComboBoxItem>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding FunctionFormulaIndexChangeCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+            <Label>Approximation left bound:</Label>
+            <StackPanel Orientation="Horizontal">
+                <controls:FormulaControl Formula="a =" VerticalAlignment="Center" Margin="5 0"/>
+                <TextBox VerticalAlignment="Center" Margin="5 0" FontSize="16" Text="{Binding IntegrationLeftBound, Mode=TwoWay}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Vertical">
+            <Label>Approximation right bound:</Label>
+            <StackPanel Orientation="Horizontal">
+                <controls:FormulaControl Formula="b =" VerticalAlignment="Center" Margin="5 0"/>
+                <TextBox VerticalAlignment="Center" Margin="5 0" FontSize="16" Text="{Binding IntegrationRightBound, Mode=TwoWay}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Vertical">
+            <Label>Approximation termination condition:</Label>
+            <ComboBox SelectedIndex="{Binding ApproximationTerminationConditionIndex, Mode=TwoWay}">
+                <ComboBoxItem>
+                    Polynomial order
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    Desired accuracy
+                </ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Orientation="Vertical">
+            <Label>
+                Termination constant:
+            </Label>
+            <StackPanel Orientation="Horizontal">
+                <controls:FormulaControl Formula="{Binding TerminationLabel, Mode=OneWay}" VerticalAlignment="Center" Margin="5 0"/>
+                <TextBox VerticalAlignment="Center" Margin="5 0" FontSize="16" Text="{Binding TerminationConstant, Mode=TwoWay}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="5" Orientation="Vertical">
+            <Label>Select integration method:</Label>
+            <ComboBox SelectedIndex="{Binding IntegrationMethodIndex, Mode=TwoWay}">
+                <ComboBoxItem>
+                    Simpson
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    Gauss-Legendre
+                </ComboBoxItem>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding IntegrationMethodIndexChangeCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="6" Orientation="Vertical">
+            <Label>Minimum integration accuracy:</Label>
+            <StackPanel Orientation="Horizontal">
+                <controls:FormulaControl Formula="\varepsilon=" VerticalAlignment="Center" Margin="5 0"/>
+                <TextBox VerticalAlignment="Center" Margin="5 0" FontSize="16" Text="{Binding MinAccuracy, Mode=TwoWay}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="7" Orientation="Vertical">
+            <Label>Number of quadrature nodes:</Label>
+            <StackPanel Orientation="Horizontal">
+                <controls:FormulaControl Formula="n=" VerticalAlignment="Center" Margin="5 0"/>
+                <TextBox VerticalAlignment="Center" Margin="5 0" FontSize="16" Text="{Binding QuadNodesNumber, Mode=TwoWay}" IsEnabled="{Binding QuadNodesNumberEnabled, Mode=OneWay}"/>
+            </StackPanel>
+        </StackPanel>
+
+        
+
+        
+
+        <StackPanel Grid.Row="8" Orientation="Horizontal">
+            <Button Margin="2 0" Command="{Binding ReplotCommand}">Replot</Button>
+            <Button Margin="2 0" Command="{Binding ApproximateCommand}">Approximate!</Button>
+            <Button Margin="2 0" Command="{Binding ClearTerminalCommand}">Clear terminal</Button>
+        </StackPanel>
+
+        <Border Grid.Row="9" BorderBrush="AliceBlue" Margin="2 2 2 2" Visibility="Visible" BorderThickness="1">
+            <TextBox x:Name="console" Text="{Binding TerminalText, Mode=OneWay}" Style="{StaticResource ConsoleTextBox}"/>
+        </Border>
+
+        <oxyc:Plot Grid.Column="1" Grid.RowSpan="8" Model="{Binding Path=PlotModel, Mode=OneWay}">
+
+        </oxyc:Plot>
+    </Grid>
+</Window>
+
+
+    
