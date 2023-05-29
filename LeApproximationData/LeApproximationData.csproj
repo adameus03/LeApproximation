@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="legendre.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="legendre.txt" />
+  </ItemGroup>
+
 </Project>

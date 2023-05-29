@@ -79,7 +79,7 @@ namespace LeApproximation
             this.Plot();
         }
 
-        private void Model_ComputationMonitorSignalReceived(object? sender, QuadIntegraData.ComputationDumpEventArgs e)
+        private void Model_ComputationMonitorSignalReceived(object? sender, LeApproximationData.ComputationDumpEventArgs e)
         {
             lock (this.terminalLines)
             {

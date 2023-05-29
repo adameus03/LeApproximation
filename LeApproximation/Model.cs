@@ -11,8 +11,8 @@ namespace LeApproximation
     }
 }*/
 
-//using QuadIntegraData;
 using System;
+using LeApproximationData;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

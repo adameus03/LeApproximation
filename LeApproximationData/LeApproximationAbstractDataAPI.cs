@@ -22,6 +22,6 @@ namespace LeApproximationData
         }
 
         public abstract Func<double, double> GetFunction(int index);
-        public abstract (double, double)[] GetGLQuadratureData(int quadratureNodesNumber, double a, double b);
+        public abstract (double, double)[] GetGLQuadratureData(int quadratureNodesNumber);
     }
 }

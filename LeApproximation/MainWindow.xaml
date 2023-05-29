@@ -194,7 +194,7 @@
             <TextBox x:Name="console" Text="{Binding TerminalText, Mode=OneWay}" Style="{StaticResource ConsoleTextBox}"/>
         </Border>
 
-        <oxyc:Plot Grid.Column="1" Grid.RowSpan="8" Model="{Binding Path=PlotModel, Mode=OneWay}">
+        <oxyc:Plot Grid.Column="1" Grid.RowSpan="10" Model="{Binding Path=PlotModel, Mode=OneWay}">
 
         </oxyc:Plot>
     </Grid>

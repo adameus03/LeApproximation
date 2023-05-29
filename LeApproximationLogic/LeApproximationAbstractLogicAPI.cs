@@ -24,7 +24,7 @@ namespace LeApproximationLogic
 
         public static LeApproximationAbstractLogicAPI CreateInstance(LeApproximationData.LeApproximationAbstractDataAPI? dataAPI = null)
         {
-            return new LeApproximationLogicAPI(dataAPI ?? LeApproximationData.QuadIntegraAbstractDataAPI.CreateInstance());
+            return new LeApproximationLogicAPI(dataAPI ?? LeApproximationData.LeApproximationAbstractDataAPI.CreateInstance());
         }
 
         public event EventHandler<LeApproximationData.ComputationDumpEventArgs>? ComputationDump;
@@ -36,8 +36,14 @@ namespace LeApproximationLogic
         public abstract double Integrate<TIntegrator>(int functionIndex, double integrationLeftBound,
                                                       double integrationRightBound, double desiredAccuracy, IntegratorInfo? integratorInfo = null) where TIntegrator : Integrator;
 
-        public (double, double)[] GetNodes(int quadratureNodesNumber, double integrationLeftBound, double integrationRightBound) => this.dataAPI.GetGLQuadratureData(quadratureNodesNumber, integrationLeftBound, integrationRightBound);
+        public abstract Func<double, double> Approximate<TIntegrator>(int functionIndex, double approximationLeftBound, 
+                                                      double approximationRightBound, int polynomialOrder, double integrationAccuracy, IntegratorInfo? integratorInfo = null) where TIntegrator : Integrator;
+
+        public abstract Func<double, double> Approximate<TIntegrator>(int functionIndex, double approximationLeftBound,
+                                                      double approximationRightBound, double approximationAccuracy, double integrationAccuracy, IntegratorInfo? integratorInfo = null) where TIntegrator : Integrator;
+
+        public (double, double)[] GetNodes(int quadratureNodesNumber, double integrationLeftBound, double integrationRightBound) => this.dataAPI.GetGLQuadratureData(quadratureNodesNumber/*, integrationLeftBound, integrationRightBound*/);
         public Func<double, double> Function(int index) => this.dataAPI.GetFunction(index);
-        public LeApproximationData.QuadIntegraAbstractDataAPI DataAPI => this.dataAPI;
+        public LeApproximationData.LeApproximationAbstractDataAPI DataAPI => this.dataAPI;
     }
 }

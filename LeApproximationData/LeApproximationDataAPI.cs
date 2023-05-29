@@ -45,7 +45,7 @@ namespace LeApproximationData
             return this.functions[index];
         }
 
-        public override (double, double)[] GetGLQuadratureData(int quadratureNodesNumber, double a, double b)
+        public override (double, double)[] GetGLQuadratureData(int quadratureNodesNumber)
         {
             if (quadratureNodesNumber < 2) throw new ArgumentException();
             (double, double)[] data = new (double, double)[quadratureNodesNumber];
