@@ -23,7 +23,9 @@ namespace LeApproximationLogic
 {
     internal class LeApproximationLogicAPI : LeApproximationAbstractLogicAPI
     {
+        private double lastApproximationError = 0;
         public LeApproximationLogicAPI(LeApproximationData.LeApproximationAbstractDataAPI dataAPI) : base(dataAPI) { }
+
 
         public override Func<double, double> Approximate<TIntegrator>(int functionIndex, double approximationLeftBound, double approximationRightBound, int polynomialOrder, double integrationAccuracy, IntegratorInfo? integratorInfo = null)
         {
@@ -73,7 +75,8 @@ namespace LeApproximationLogic
             */
 
             Func<double, double> f = base.dataAPI.GetFunction(functionIndex);
-            Func<double, int, double> integrandFunction = (x, j) => f(-1 + 2 * (x - approximationLeftBound) / (approximationRightBound - approximationLeftBound)) * legendrePolynomial(x, j);
+            Func<double, double> g = (x) => f(-1 + 2 * (x - approximationLeftBound) / (approximationRightBound - approximationLeftBound));
+            Func<double, int, double> integrandFunction = (x, j) => g(x) * legendrePolynomial(x, j);
 
             /*
              *  The approximation function G(x) is defined as follows:
@@ -82,15 +85,35 @@ namespace LeApproximationLogic
              *  lambda_j = (2j+1)/2 * int_{-1}^{1} g(x)*P_j(x)*dx
              */
 
-            double[] lambdaCoefficients = Enumerable.Range(0, polynomialOrder + 1).Select((j) => ((float)(2 * j + 1)) / 2.0f * this.Integrate<TIntegrator>((x) => integrandFunction(x, j), approximationLeftBound, approximationRightBound, integrationAccuracy, integratorInfo)).ToArray();
-            return (x) => Enumerable.Range(0, polynomialOrder + 1).Sum((j) => lambdaCoefficients[j] * legendrePolynomial(x, j));
+            double[] lambdaCoefficients = Enumerable.Range(0, polynomialOrder + 1).Select((j) => ((float)(2 * j + 1)) / 2.0f * this.Integrate<TIntegrator>((x) => integrandFunction(x, j), -1, 1, integrationAccuracy, integratorInfo)).ToArray();
 
-            throw new NotImplementedException();
+            /*
+             * 
+             * Mean squared error:
+             *  M^2 = 1/2 * int_{-1}^{1} g(x)^2 dx - ||P_0||a_0 - ||P_1||a_1 - ||P_2||a_2 - ... - ||P_n||a_n
+             * where you can calculate ||P_j|| using the formula:
+             *  ||P_j|| = 2/(2j+1)
+             */
+
+            double accuracy = Math.Sqrt(0.5*this.Integrate<TIntegrator>((x) => g(x) * g(x), -1, 1, integrationAccuracy, integratorInfo) - Enumerable.Range(0, polynomialOrder + 1).Sum((j) => lambdaCoefficients[j] * lambdaCoefficients[j] * ((double)2.0) / (2.0 * j + 1.0)));
+            
+            OnComputationDump(this, new ComputationDumpEventArgs($"Order: {polynomialOrder} | accuracy: {accuracy}"));
+            this.lastApproximationError = accuracy;
+            return (x) => Enumerable.Range(0, polynomialOrder + 1).Sum((j) => lambdaCoefficients[j] * legendrePolynomial(x, j));
+            
         }
 
         public override Func<double, double> Approximate<TIntegrator>(int functionIndex, double approximationLeftBound, double approximationRightBound, double approximationAccuracy, double integrationAccuracy, IntegratorInfo? integratorInfo = null)
         {
-            throw new NotImplementedException();
+            Func<double, double> approximationFunction;
+            int polynomialOrder = 1;
+            do
+            {
+                approximationFunction = this.Approximate<TIntegrator>(functionIndex, approximationLeftBound, approximationRightBound, polynomialOrder, integrationAccuracy, integratorInfo);
+                polynomialOrder++;
+            }
+            while (this.lastApproximationError > approximationAccuracy);
+            return approximationFunction;
         }
 
         private double Integrate<TIntegrator>(Func<double, double> function, double integrationLeftBound, double integrationRightBound, double desiredAccuracy, IntegratorInfo? integratorInfo = null) where TIntegrator : Integrator
