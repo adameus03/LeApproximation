@@ -82,7 +82,8 @@ namespace LeApproximationLogic
              *  lambda_j = (2j+1)/2 * int_{-1}^{1} g(x)*P_j(x)*dx
              */
 
-            return (x) => Enumerable.Range(0, polynomialOrder + 1).Select((j) => ((float)(2 * j + 1)) / 2.0f * this.Integrate((x) => integrandFunction(x, j), approximationLeftBound, approximationRightBound, integrationAccuracy, integratorInfo));
+            double[] lambdaCoefficients = Enumerable.Range(0, polynomialOrder + 1).Select((j) => ((float)(2 * j + 1)) / 2.0f * this.Integrate<TIntegrator>((x) => integrandFunction(x, j), approximationLeftBound, approximationRightBound, integrationAccuracy, integratorInfo)).ToArray();
+            return (x) => Enumerable.Range(0, polynomialOrder + 1).Sum((j) => lambdaCoefficients[j] * legendrePolynomial(x, j));
 
             throw new NotImplementedException();
         }
@@ -125,7 +126,7 @@ namespace LeApproximationLogic
 
             integrator.ComputationDump += Integrator_ComputationDump;
             return integrator.Integrate();*/
-            return this.Integrate((Func<double, double>)base.dataAPI.GetFunction(functionIndex), (double)integrationLeftBound, (double)integrationRightBound, (double)desiredAccuracy, (IntegratorInfo?)integratorInfo);
+            return this.Integrate<TIntegrator>(base.dataAPI.GetFunction(functionIndex), integrationLeftBound, integrationRightBound, desiredAccuracy, integratorInfo);
         }
 
         private void Integrator_ComputationDump(object? sender, ComputationDumpEventArgs e)
