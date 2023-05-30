@@ -13,6 +13,7 @@ namespace LeApproximation
 
 using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
@@ -37,13 +38,15 @@ namespace LeApproximation
         private int functionFormulaIndex = 0;
         private uint quadNodesNumber = 3;
         private double minAccuracy = 0.01;
-        private int integrationLeftBound = -1;
-        private int integrationRightBound = 1;
+        private double approximationLeftBound = -1;
+        private double approximationRightBound = 1;
         private int approximationTerminationConditionIndex = 0;
         private double terminationConstant = 1;
         private string terminationLabel = "m=";
 
         private uint storedQuadNodesNumber = 3;
+
+        int computationIndex = 0;
 
         private string terminalText = "";
         private ObservableCollection<string> terminalLines = new ObservableCollection<string>();
@@ -72,7 +75,7 @@ namespace LeApproximation
 
             this.terminalLines.CollectionChanged += TerminalLines_CollectionChanged;
 
-            this.terminalLines.Add("Welcome to QuadIntegra quadrature method function integrator");
+            this.terminalLines.Add("Welcome to LeApproximation - Legendre polynomials function approximator");
 
             this.model.ComputationMonitorSignalReceived += Model_ComputationMonitorSignalReceived;
 
@@ -112,16 +115,34 @@ namespace LeApproximation
         private async void ApproximateCommand_ExecuteReceived(object? sender, EventArgs e)
         {
             //this.terminalLines.Add("Calculating integral...");
-            this.terminalLines.Add("Starting to compute approximation...");
+            int computationLocalIndex = computationIndex++;
+            this.terminalLines.Add($"Starting to compute approximation [{computationLocalIndex}]...");
             if (this.integrationMethodIndex == 0)
             {
-                await Task.Run(() => this.model.CalculateIntegralSimpson());
+                //await Task.Run(() => this.model.CalculateIntegralSimpson());
+                if(this.approximationTerminationConditionIndex == 0)
+                {
+                    await Task.Run(() => this.model.CalculateApproximation_Order_Simpson());
+                }
+                else
+                {
+                    await Task.Run(() => this.model.CalculateApproximation_Accuracy_Simpson());
+                }
             }
             else
             {
-                await Task.Run(() => this.model.CalculateIntegralGaussLegendre());
+                //await Task.Run(() => this.model.CalculateIntegralGaussLegendre());
+                if (this.approximationTerminationConditionIndex == 0)
+                {
+                    await Task.Run(() => this.model.CalculateApproximation_Order_GaussLegendre());
+                }
+                else
+                {
+                    await Task.Run(() => this.model.CalculateApproximation_Accuracy_GaussLegendre());
+                }
             }
-            this.terminalLines.Add($"Result: {this.model.IntegralValue}");
+            this.terminalLines.Add($"Approximation process [{computationLocalIndex}] completed.");
+            this.Plot();
         }
 
         private void ReplotCommand_ExecuteReceived(object? sender, EventArgs e)
@@ -171,10 +192,28 @@ namespace LeApproximation
         {
             this.plotModel.Series.Clear();
 
-            Func<double, double> integrandFunction = this.model.FetchFunction();
+            Func<double, double> inputFunction = this.model.FetchFunction();
 
-            this.plotModel.Series.Add(new FunctionSeries((x) => 0, this.integrationLeftBound, this.integrationRightBound, 0.01));
-            this.plotModel.Series.Add(new FunctionSeries(integrandFunction, this.integrationLeftBound, this.integrationRightBound, 0.01));
+            double left = this.approximationLeftBound - 0.25 * (this.approximationRightBound - this.approximationLeftBound);
+            double right = this.approximationRightBound + 0.25 * (this.approximationRightBound - this.approximationLeftBound);
+
+            FunctionSeries OX = new FunctionSeries((x) => 0, left, right, 0.01);
+            OX.Color = OxyColors.Blue;
+            this.plotModel.Series.Add(OX);
+            FunctionSeries inputFunctionSeries = new FunctionSeries(inputFunction, left, right, 0.01);
+            inputFunctionSeries.Color = OxyColors.Green;
+            inputFunctionSeries.Title = "Original function";
+            this.plotModel.Series.Add(inputFunctionSeries);
+            FunctionSeries outputFunctionSeries = new FunctionSeries(this.model.Approximation, left, right, 0.01);
+            outputFunctionSeries.Color = OxyColors.Red;
+            outputFunctionSeries.Title = "Approximation";
+            this.plotModel.Series.Add(outputFunctionSeries);
+
+            plotModel.Legends.Add(new Legend()
+            {
+                LegendTitle = "Legend",
+                LegendPosition = LegendPosition.TopRight,
+            });
 
             /*ScatterSeries series = new ScatterSeries
             {
@@ -217,6 +256,7 @@ namespace LeApproximation
                 terminalLines.Add($"Solution marker at ({x}, {y})");
                 this.PlotModel.InvalidatePlot(true);
              */
+            this.model.ClearApproximation();
         }
 
         public int IntegrationMethodIndex
@@ -251,24 +291,24 @@ namespace LeApproximation
             set
             {
                 this.minAccuracy = value;
-                this.model.Accuracy = value;
+                this.model.IntegrationAccuracy = value;
             }
         }
-        public int IntegrationLeftBound
+        public double ApproximationLeftBound
         {
-            get => this.integrationLeftBound;
+            get => this.approximationLeftBound;
             set
             {
-                this.integrationLeftBound = value;
+                this.approximationLeftBound = value;
                 this.model.LeftBound = value;
             }
         }
-        public int IntegrationRightBound
+        public double ApproximationRightBound
         {
-            get => this.integrationRightBound;
+            get => this.approximationRightBound;
             set
             {
-                this.integrationRightBound = value;
+                this.approximationRightBound = value;
                 this.model.RightBound = value;
             }
         }
@@ -292,8 +332,12 @@ namespace LeApproximation
         }
         public double TerminationConstant
         {
-            get => this.terminationConstant;
-            set => this.terminationConstant = value;
+            get { return this.terminationConstant; }
+            set
+            {
+                this.terminationConstant = value;
+                this.model.TerminationConstant = value;
+            }
         }
         public string TerminationLabel => this.terminationLabel;
 

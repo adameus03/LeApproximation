@@ -32,7 +32,7 @@ namespace LeApproximationData
             new Func<double, double>((double x) => x*(x*(x*x+1)-2)+1),
             new Func<double, double>((double x) => x*(x*x*(x*x*x-1)-2)-1),
             new Func<double, double>((double x) => Math.Abs(x)),
-            new Func<double, double>((double x) => Math.Cos(x)),
+            new Func<double, double>((double x) => Math.Sin(x)),
             new Func<double, double>((double x) => Math.Cos(2*x*x)*Math.Cos(2*x*x)-Math.Abs(Math.Sin(x*x))),
             new Func<double, double>((double x) => Math.Exp(-x*x)),
             new Func<double, double>((double x) => -Math.Log(Math.Abs(x))),
@@ -47,11 +47,11 @@ namespace LeApproximationData
 
         public override (double, double)[] GetGLQuadratureData(int quadratureNodesNumber)
         {
-            if (quadratureNodesNumber < 2) throw new ArgumentException();
+            if (quadratureNodesNumber < 1) throw new ArgumentException();
             (double, double)[] data = new (double, double)[quadratureNodesNumber];
             using (TextReader reader = File.OpenText(this.pathGL))
             {
-                for (int i = 2; i < quadratureNodesNumber; i++)
+                for (int i = 1; i < quadratureNodesNumber; i++)
                 {
                     for (int j = 0; j < i + 2; j++) reader.ReadLine();
                 }

@@ -34,7 +34,7 @@ namespace LeApproximationLogic
         protected override double Kernel(double a, double b)
         {
             double sum = 0;
-            (double, double)[] data = integratorInfo.LogicAPI.DataAPI.GetGLQuadratureData(integratorInfo.QuadratureNodesNumber, a, b);
+            (double, double)[] data = integratorInfo.LogicAPI.DataAPI.GetGLQuadratureData(integratorInfo.QuadratureNodesNumber/*, a, b*/);
             double h = 0.5 * (b - a);
             for (int i = 0; i < integratorInfo.QuadratureNodesNumber; i++)
             {

@@ -33,6 +33,8 @@ namespace LeApproximationLogic
             this.ComputationDump?.Invoke(sender, computationDumpEventArgs);
         }
 
+        public abstract double Integrate<TIntegrator>(Func<double, double> function, double integrationLeftBound, double integrationRightBound, double desiredAccuracy, IntegratorInfo? integratorInfo = null) where TIntegrator : Integrator;
+
         public abstract double Integrate<TIntegrator>(int functionIndex, double integrationLeftBound,
                                                       double integrationRightBound, double desiredAccuracy, IntegratorInfo? integratorInfo = null) where TIntegrator : Integrator;
 
