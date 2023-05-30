@@ -96,6 +96,12 @@
                     <controls:FormulaControl Formula="f(x)=e^{-x^2}"/>
                 </ComboBoxItem>
                 <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=\sin^3(x)+2\sin^2(x)+3\sin(x)"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <controls:FormulaControl Formula="f(x)=2^x+2^{2x}-2^{3x}"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
                     <controls:FormulaControl Formula="f(x)=\ln{\frac{1}{|x|}}"/>
                 </ComboBoxItem>
                 <ComboBoxItem>

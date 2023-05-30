@@ -35,6 +35,8 @@ namespace LeApproximationData
             new Func<double, double>((double x) => Math.Sin(x)),
             new Func<double, double>((double x) => Math.Cos(2*x*x)*Math.Cos(2*x*x)-Math.Abs(Math.Sin(x*x))),
             new Func<double, double>((double x) => Math.Exp(-x*x)),
+            new Func<double, double>((double x) => (new Func<double,double>((t)=>t*(t*(t+2)+3)))(Math.Sin(x))),
+            new Func<double, double>((double x) => (new Func<double,double>((t)=>t*(t*(-t+1)+1)))(Math.Pow(2, x))),
             new Func<double, double>((double x) => -Math.Log(Math.Abs(x))),
             new Func<double, double>((double x) => Math.Log(Math.Abs(x+0.5))-Math.Log(Math.Abs(x-0.5)))
         };
